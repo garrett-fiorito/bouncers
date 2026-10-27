@@ -24,11 +24,15 @@ static constexpr bn::fixed BASE_SPEED = 2;
 // Maximum number of bouncers on screen at once
 static constexpr int MAX_BOUNCERS = 20;
 
+// Bouncers have a lifetime of 4 seconds (60 frames per second)
+static constexpr int BOUNCER_LIFETIME = 60 * 4;
+
 class Bouncer {
     public:
         bn::sprite_ptr sprite;
         bn::fixed x_speed;
         bn::fixed y_speed;
+        int frames_remaining = BOUNCER_LIFETIME;
 
         Bouncer(bn::fixed x_start, bn::fixed y_start, bn::random& random) : 
             sprite(bn::sprite_items::dot.create_sprite(x_start, y_start)), 
@@ -66,6 +70,11 @@ class Bouncer {
 
             sprite.set_x(x);
             sprite.set_y(y);
+            --frames_remaining;
+        }
+
+        bool expired() const {
+            return frames_remaining <= 0;
         }
 
     private:
@@ -109,8 +118,6 @@ int main() {
 
         bn::fixed y_spawn = 0;
 
-        Bouncer manual = Bouncer(-30, 25, random);
-
         while(true) {
             // if A is pressed add a new bouncer
             if(bn::keypad::a_pressed()) {
@@ -123,9 +130,13 @@ int main() {
             BN_LOG("Average x: ", x_average);
         }
             
-            for (Bouncer& b : bouncers) {
-                b.update();
+        // Backwards so removing a bouncer won't skip another one
+        for(int i = bouncers.size() - 1; i >= 0; --i) {
+            bouncers[i].update();
+            if(bouncers[i].expired()) {
+                bouncers.erase(bouncers.begin() + i);
             }
+        }
 
             y_spawn += 1;
 

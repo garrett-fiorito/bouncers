@@ -1,4 +1,8 @@
 # Bouncers
 An exercise to learn about functions and classes.
 
-Please find instructions in [instructions.md](instructions.md).
+When 'A' button is pressed, spawns a new sprite. Each sprite exists for 4 seconds before disappearing
+Speed and location are randomly generated.
+
+![Bouncer GIF](bouncers.gif)
+
